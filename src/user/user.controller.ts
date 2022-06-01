@@ -45,20 +45,30 @@ export class UserController {
   /**
    * Create and update route
    */
-  @Post('user/:id')
-  async updateUser(@Param('id') userId, @Body() user: IUser) {
+  @Post('user/:id/:status_id?')
+  async createOrUpdateUser(
+    @Param('id') userId,
+    @Param('status_id') statusId,
+    @Body() user: IUser,
+  ) {
     if (userId == 0) {
       return this.userService.createUser(user);
     }
+
     const { _id, ...otherFields } = user;
-    const result = await this.userService.updateUser(userId, otherFields);
+    let updateObject: any = otherFields;
+
+    if (statusId) {
+      updateObject = { status_id: statusId };
+    }
+    const result = await this.userService.updateUser(userId, updateObject);
     if (!result) {
       throw new HttpException('Error Updating User', HttpStatus.NOT_FOUND);
     }
     return result;
   }
 
-  @Get('user/:id')
+  @Get('user/:id/')
   getProfile(@Param('id') userId, @Req() request: Request) {
     let id = userId === CURRENT_USER ? request.user?._id : userId;
     return this.userService.findById(id);
