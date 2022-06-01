@@ -11,8 +11,9 @@ export class UserService {
 
   createUser = async (user: IUser) => {
     const saltOrRounds = 10;
-    if(this.getUserByEmail(user.email)){
-        throw new ConflictException('User with this email already exists');
+    const userExists = await this.getUserByEmail(user.email);
+    if (userExists) {
+      throw new ConflictException('User with this email already exists');
     }
     const hash = await bcrypt.hash(user.password, saltOrRounds);
     user.password = hash;
@@ -28,7 +29,8 @@ export class UserService {
   findById = (id: string) => this.userModel.findById(id);
 
   updateUser = (id: string, user: IUser) =>
-    this.userModel.findOneAndUpdate({ id }, user, { new: true, runValidators: true });
-
-
+    this.userModel.findOneAndUpdate({ id }, user, {
+      new: true,
+      runValidators: true,
+    });
 }
