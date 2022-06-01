@@ -1,13 +1,23 @@
-import { ConflictException, Injectable, Post } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 import { IUser } from './user.model';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<IUser>) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<IUser>,
+    private jwtService: JwtService,
+  ) {}
 
   createUser = async (user: IUser) => {
     const saltOrRounds = 10;
@@ -22,7 +32,10 @@ export class UserService {
 
   getUserByEmail = async (email: string) => this.userModel.findOne({ email });
 
-  getAllUsers = () => this.userModel.find({});
+  getAllUsers = (userType) => {
+    const query = userType ? { type: userType } : {};
+    return this.userModel.find(query);
+  };
 
   deleteUser = (id: string) => this.userModel.deleteOne({ id });
 
@@ -33,4 +46,18 @@ export class UserService {
       new: true,
       runValidators: true,
     });
+
+  login = async (email: string, password: string) => {
+    const user = await this.getUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException();
+    }
+    const payload = { email: user.email, type: user.type, id: user._id };
+    const jwt = this.jwtService.signAsync(payload);
+    return jwt;
+  };
 }

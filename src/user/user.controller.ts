@@ -9,8 +9,8 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
-  Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23,23 +23,11 @@ import { Request } from 'express';
 @Controller()
 export class UserController {
   constructor(
-    private userService: UserService,
-    private jwtService: JwtService,
-  ) {}
+    private userService: UserService) {}
 
   @Post('login')
   async login(@Body() login: Pick<IUser, 'email' | 'password'>) {
-    const user = await this.userService.getUserByEmail(login.email);
-    if (!user) {
-      throw new NotFoundException();
-    }
-    const isMatch = await bcrypt.compare(login.password, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException();
-    }
-    const payload = { email: user.email, type: user.type, id: user._id };
-    const jwt = this.jwtService.signAsync(payload);
-    return jwt;
+    return this.userService.login(login.email, login.password)
   }
 
   /**
@@ -75,8 +63,8 @@ export class UserController {
   }
 
   @Get('user')
-  getAllUsersProfiles() {
-    return this.userService.getAllUsers();
+  getAllUsersProfiles(@Query('type') userType: string) {
+    return this.userService.getAllUsers(userType);
   }
 
   @Delete('user/:id')
