@@ -15,7 +15,7 @@ export const UserSchema = new mongoose.Schema({
   status_id: { type: String, required: true },
 });
 
-export interface IUser {
+export interface User {
   _id?: string;
   firstname: string;
   lastname: string;

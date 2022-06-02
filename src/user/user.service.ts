@@ -10,16 +10,16 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-import { IUser } from './user.model';
+import { User } from './user.model';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel('User') private readonly userModel: Model<IUser>,
+    @InjectModel('User') private readonly userModel: Model<User>,
     private jwtService: JwtService,
   ) {}
 
-  createUser = async (user: IUser) => {
+  createUser = async (user: User) => {
     const saltOrRounds = 10;
     const userExists = await this.getUserByEmail(user.email);
     if (userExists) {
@@ -41,7 +41,7 @@ export class UserService {
 
   findById = (id: string) => this.userModel.findById(id);
 
-  updateUser = (id: string, user: IUser) =>
+  updateUser = (id: string, user: User) =>
     this.userModel.findOneAndUpdate({ id }, user, {
       new: true,
       runValidators: true,

@@ -7,27 +7,23 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Query,
   Req,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { IUser } from './user.model';
+import { User } from './user.model';
 import { UserService } from './user.service';
-import { JwtService } from '@nestjs/jwt';
 import { CURRENT_USER } from 'src/constants';
 import { Request } from 'express';
 
 @Controller()
 export class UserController {
-  constructor(
-    private userService: UserService) {}
+  constructor(private userService: UserService) {}
 
   @Post('login')
-  async login(@Body() login: Pick<IUser, 'email' | 'password'>) {
-    return this.userService.login(login.email, login.password)
+  async login(@Body() login: Pick<User, 'email' | 'password'>) {
+    return this.userService.login(login.email, login.password);
   }
 
   /**
@@ -37,7 +33,7 @@ export class UserController {
   async createOrUpdateUser(
     @Param('id') userId,
     @Param('status_id') statusId,
-    @Body() user: IUser,
+    @Body() user: User,
   ) {
     if (userId == 0) {
       return this.userService.createUser(user);
@@ -56,7 +52,7 @@ export class UserController {
     return result;
   }
 
-  @Get('user/:id/')
+  @Get('user/:id')
   getProfile(@Param('id') userId, @Req() request: Request) {
     let id = userId === CURRENT_USER ? request.user?._id : userId;
     return this.userService.findById(id);
