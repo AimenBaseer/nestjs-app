@@ -8,7 +8,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JWT_SECRET } from 'src/constants';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -22,7 +21,7 @@ export class AuthenticationMiddleware implements NestMiddleware {
         throw new UnauthorizedException()
       }
       const token = authHeaders.split(' ')[1];
-      const decoded: any = jwt.verify(token, JWT_SECRET);
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
       const user = await this.userService.findById(decoded.id);
 
       if (!user) {
