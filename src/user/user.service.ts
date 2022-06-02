@@ -1,16 +1,17 @@
+import * as bcrypt from 'bcrypt';
+
 import {
   ConflictException,
   Injectable,
   NotFoundException,
-  Post,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { User } from './user.model';
+import { hashPassword } from 'src/utils/helper';
 
 @Injectable()
 export class UserService {
@@ -25,8 +26,7 @@ export class UserService {
     if (userExists) {
       throw new ConflictException('User with this email already exists');
     }
-    const hash = await bcrypt.hash(user.password, saltOrRounds);
-    user.password = hash;
+    user.password = hashPassword(user.password, saltOrRounds);
     return this.userModel.create(user);
   };
 
