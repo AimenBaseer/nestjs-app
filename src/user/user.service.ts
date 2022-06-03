@@ -3,12 +3,9 @@ import * as bcrypt from 'bcrypt';
 import {
   ConflictException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { JwtService } from '@nestjs/jwt';
 
 import { User } from './user.model';
 import { hashPassword } from 'src/utils/helper';
@@ -17,7 +14,6 @@ import { hashPassword } from 'src/utils/helper';
 export class UserService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<User>,
-    private jwtService: JwtService,
   ) {}
 
   createUser = async (user: User) => {
@@ -30,7 +26,7 @@ export class UserService {
     return this.userModel.create(user);
   };
 
-  getUserByEmail = async (email: string) => this.userModel.findOne({ email });
+  getUserByEmail = async (email: string) => this.userModel.findOne({ email }).lean();
 
   getAllUsers = (userType) => {
     const query = userType ? { type: userType } : {};
@@ -47,17 +43,4 @@ export class UserService {
       runValidators: true,
     });
 
-  login = async (email: string, password: string) => {
-    const user = await this.getUserByEmail(email);
-    if (!user) {
-      throw new NotFoundException();
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new UnauthorizedException();
-    }
-    const payload = { email: user.email, type: user.type, id: user._id };
-    const jwt = this.jwtService.signAsync(payload);
-    return jwt;
-  };
 }

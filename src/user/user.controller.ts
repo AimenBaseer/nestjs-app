@@ -1,5 +1,3 @@
-import * as bcrypt from 'bcrypt';
-
 import {
   Body,
   Controller,
@@ -10,20 +8,30 @@ import {
   Param,
   Post,
   Query,
-  Req,
+  Request as Req,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from './user.model';
 import { UserService } from './user.service';
 import { CURRENT_USER } from 'src/constants';
 import { Request } from 'express';
+import { AuthGuard } from '@nestjs/passport';
+import { Public } from 'src/decorators/public.decorator';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller()
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
+  @Public()
+  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async login(@Body() login: Pick<User, 'email' | 'password'>) {
-    return this.userService.login(login.email, login.password);
+  login(@Req() req: Request) {
+    console.log('req.user', req.user);
+    return this.authService.login(req.user);
   }
 
   /**
@@ -54,7 +62,8 @@ export class UserController {
 
   @Get('user/:id')
   getProfile(@Param('id') userId, @Req() request: Request) {
-    let id = userId === CURRENT_USER ? request.user?._id : userId;
+    const user = request.user as User;
+    let id = userId === CURRENT_USER ? user._id : userId;
     return this.userService.findById(id);
   }
 

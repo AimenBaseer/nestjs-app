@@ -1,31 +1,35 @@
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { AllExceptionsFilter } from './exceptions/exception.filter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
 import { UserModule } from './user/user.module';
 import {
-  MiddlewareConsumer,
   Module,
-  NestModule,
-  RequestMethod,
 } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthenticationMiddleware } from './middlwares/authentication.middleware';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
     MongooseModule.forRoot(process.env.MONGODB_URL),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthenticationMiddleware)
-      .exclude({ path: 'login', method: RequestMethod.POST })
-      .forRoutes('*');
-  }
+export class AppModule {
+
 }
