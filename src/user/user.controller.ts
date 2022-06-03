@@ -15,9 +15,9 @@ import { User } from './user.model';
 import { UserService } from './user.service';
 import { CURRENT_USER } from 'src/constants';
 import { Request } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthService } from 'src/auth/auth.service';
+import { LocalAuthGuard } from 'src/guards/local-auth.guard';
 
 @Controller()
 export class UserController {
@@ -27,7 +27,7 @@ export class UserController {
   ) {}
 
   @Public()
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Req() req: Request) {
     console.log('req.user', req.user);

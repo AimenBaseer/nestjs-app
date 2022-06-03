@@ -22,7 +22,7 @@ export class UserService {
     if (userExists) {
       throw new ConflictException('User with this email already exists');
     }
-    user.password = hashPassword(user.password, saltOrRounds);
+    user.password = await hashPassword(user.password, saltOrRounds);
     return this.userModel.create(user);
   };
 
