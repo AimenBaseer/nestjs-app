@@ -18,6 +18,7 @@ import { Request } from 'express';
 import { Public } from 'src/decorators/public.decorator';
 import { AuthService } from 'src/auth/auth.service';
 import { LocalAuthGuard } from 'src/guards/local-auth.guard';
+import { UserDto } from 'src/dtos/user.dto';
 
 @Controller()
 export class UserController {
@@ -41,7 +42,7 @@ export class UserController {
   async createOrUpdateUser(
     @Param('id') userId,
     @Param('status_id') statusId,
-    @Body() user: User,
+    @Body() user: UserDto,
   ) {
     if (userId == 0) {
       return this.userService.createUser(user);

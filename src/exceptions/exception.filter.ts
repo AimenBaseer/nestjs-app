@@ -6,6 +6,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
+interface ErrorResponse {
+  statusCode: number;
+  message: any;
+  error: string;
+}
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -23,9 +28,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       path: request.url,
       message:
         exception instanceof HttpException
-          ? exception.message
+          ? (exception.getResponse() as ErrorResponse)?.message
           : 'Something Went Wrong',
     });
-    console.log("exception", exception);
+    console.log('exception', exception);
   }
 }

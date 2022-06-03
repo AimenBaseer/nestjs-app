@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 
 import { User } from './user.model';
 import { hashPassword } from 'src/utils/helper';
+import { UserDto } from 'src/dtos/user.dto';
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,7 @@ export class UserService {
     @InjectModel('User') private readonly userModel: Model<User>,
   ) {}
 
-  createUser = async (user: User) => {
+  createUser = async (user: UserDto) => {
     const saltOrRounds = 10;
     const userExists = await this.getUserByEmail(user.email);
     if (userExists) {
