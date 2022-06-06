@@ -44,7 +44,7 @@ export class UserController {
     @Param('status_id') statusId: string,
     @Body() user: UserDto,
   ) {
-    if (userId == 0) {
+    if (userId === '0') {
       return this.userService.createUser(user);
     }
 
