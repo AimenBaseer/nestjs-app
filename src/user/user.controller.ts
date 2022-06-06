@@ -40,8 +40,8 @@ export class UserController {
    */
   @Post('user/:id/:status_id?')
   async createOrUpdateUser(
-    @Param('id') userId,
-    @Param('status_id') statusId,
+    @Param('id') userId: string,
+    @Param('status_id') statusId: string,
     @Body() user: UserDto,
   ) {
     if (userId == 0) {
@@ -62,7 +62,7 @@ export class UserController {
   }
 
   @Get('user/:id')
-  getProfile(@Param('id') userId, @Req() request: Request) {
+  getProfile(@Param('id') userId: string, @Req() request: Request) {
     const user = request.user as User;
     let id = userId === CURRENT_USER ? user._id : userId;
     return this.userService.findById(id);
