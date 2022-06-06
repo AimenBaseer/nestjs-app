@@ -1,5 +1,5 @@
 import { IsDefined, IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Type } from 'src/user/user.model';
+import { Role } from 'src/user/user.model';
 
 export class UserDto {
   @IsString()
@@ -11,8 +11,8 @@ export class UserDto {
   @IsString()
   lastname: string;
 
-  @IsEnum([Type.client, Type.advisor])
-  type: Type;
+  @IsEnum([Role.client, Role.advisor])
+  type: Role;
 
   @IsString()
   phone: string;
