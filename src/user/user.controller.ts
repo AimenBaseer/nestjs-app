@@ -13,12 +13,13 @@ import {
 } from '@nestjs/common';
 import { User } from './user.model';
 import { UserService } from './user.service';
-import { CURRENT_USER } from 'src/constants';
+import { CURRENT_USER } from '../constants';
 import { Request } from 'express';
-import { Public } from 'src/decorators/public.decorator';
-import { AuthService } from 'src/auth/auth.service';
-import { LocalAuthGuard } from 'src/guards/local-auth.guard';
-import { UserDto } from 'src/dtos/user.dto';
+import { Public } from '../decorators/public.decorator';
+import { AuthService } from '../auth/auth.service';
+import { LocalAuthGuard } from '../guards/local-auth.guard';
+import { UserDto } from '../dtos/user.dto';
+import { Types } from 'mongoose';
 
 @Controller()
 export class UserController {
@@ -62,9 +63,9 @@ export class UserController {
   }
 
   @Get('user/:id')
-  getProfile(@Param('id') userId: string, @Req() request: Request) {
+  getProfile(@Param('id') userId: string | Types.ObjectId, @Req() request: Request) {
     const user = request.user as User;
-    let id = userId === CURRENT_USER ? user._id : userId;
+    let id = (userId === CURRENT_USER ? user._id : userId) as Types.ObjectId;
     return this.userService.findById(id);
   }
 

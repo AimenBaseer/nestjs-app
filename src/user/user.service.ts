@@ -5,11 +5,11 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { User } from './user.model';
-import { hashPassword } from 'src/utils/helper';
-import { UserDto } from 'src/dtos/user.dto';
+import { hashPassword } from '../utils/helper';
+import { UserDto } from '../dtos/user.dto';
 
 @Injectable()
 export class UserService {
@@ -36,7 +36,7 @@ export class UserService {
 
   deleteUser = (id: string) => this.userModel.deleteOne({ id });
 
-  findById = (id: string) => this.userModel.findById(id);
+  findById = (id: Types.ObjectId) => this.userModel.findById(id);
 
   updateUser = (id: string, user: User) =>
     this.userModel.findOneAndUpdate({ id }, user, {

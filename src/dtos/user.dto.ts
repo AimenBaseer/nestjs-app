@@ -1,9 +1,15 @@
-import { IsDefined, IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Role } from 'src/user/user.model';
+import {
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsString,
+} from 'class-validator';
+import { Types } from 'mongoose';
+import { Role } from '../user/user.model';
 
 export class UserDto {
   @IsString()
-  _id: string;
+  _id?: Types.ObjectId;
 
   @IsString()
   firstname: string;
