@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 
 interface ErrorResponse {
@@ -31,6 +32,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
           ? (exception.getResponse() as ErrorResponse)?.message
           : 'Something Went Wrong',
     });
-    console.log('exception', exception);
+    Logger.error('error', exception);
   }
 }

@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Logger,
   Param,
   Post,
   Query,
@@ -32,7 +33,7 @@ export class UserController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   login(@Req() req: Request) {
-    console.log('req.user', req.user);
+    Logger.log('req.user', req.user);
     return this.authService.login(req.user);
   }
 
