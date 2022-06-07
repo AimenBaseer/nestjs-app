@@ -12,7 +12,7 @@ import {
   Request as Req,
   UseGuards,
 } from '@nestjs/common';
-import { User } from './user.model';
+import { Role, User } from './user.model';
 import { UserService } from './user.service';
 import { CURRENT_USER } from '../constants';
 import { Request } from 'express';
@@ -21,6 +21,7 @@ import { AuthService } from '../auth/auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { UserDto } from '../dtos/user.dto';
 import { Types } from 'mongoose';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @Controller()
 export class UserController {
@@ -40,6 +41,8 @@ export class UserController {
   /**
    * Create and update route
    */
+
+  @Roles(Role.advisor)
   @Post('user/:id/:status_id?')
   async createOrUpdateUser(
     @Param('id') userId: string,
@@ -75,6 +78,7 @@ export class UserController {
     return this.userService.getAllUsers(userType);
   }
 
+  @Roles(Role.advisor)
   @Delete('user/:id')
   async deleteUser(@Param('id') userId: string) {
     const deletedUser = await this.userService.deleteUser(userId);

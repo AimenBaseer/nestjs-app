@@ -10,6 +10,7 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuthorizationGuard } from './guards/authorization.guard';
 
 @Module({
   imports: [
@@ -27,6 +28,10 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthorizationGuard,
     },
   ],
 })
