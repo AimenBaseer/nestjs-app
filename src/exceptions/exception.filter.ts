@@ -25,6 +25,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     response.status(status).json({
+      success: false,
       status,
       path: request.url,
       message:

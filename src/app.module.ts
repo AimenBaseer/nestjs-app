@@ -1,4 +1,4 @@
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AllExceptionsFilter } from './exceptions/exception.filter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
@@ -11,6 +11,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthorizationGuard } from './guards/authorization.guard';
+import { ResponseInterceptor } from './interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -33,6 +34,10 @@ import { AuthorizationGuard } from './guards/authorization.guard';
       provide: APP_GUARD,
       useClass: AuthorizationGuard,
     },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor
+    }
   ],
 })
 export class AppModule {
