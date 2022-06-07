@@ -19,10 +19,12 @@ import { Request } from 'express';
 import { Public } from '../decorators/public.decorator';
 import { AuthService } from '../auth/auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
-import { UserDto } from '../dtos/user.dto';
+import { UserDto, LoginDto } from '../dtos/user.dto';
 import { Types } from 'mongoose';
 import { Roles } from 'src/decorators/roles.decorator';
 
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+@ApiBearerAuth()
 @Controller()
 export class UserController {
   constructor(
@@ -32,6 +34,7 @@ export class UserController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
+  @ApiBody({ type: LoginDto })
   @Post('login')
   login(@Req() req: Request) {
     Logger.log('req.user', req.user);
@@ -44,6 +47,7 @@ export class UserController {
 
   @Roles(Role.advisor)
   @Post('user/:id/:status_id?')
+  @ApiCreatedResponse({type: UserDto})
   async createOrUpdateUser(
     @Param('id') userId: string,
     @Param('status_id') statusId: string,
@@ -67,6 +71,7 @@ export class UserController {
   }
 
   @Get('user/:id')
+  @ApiOkResponse({type: UserDto})
   getProfile(@Param('id') userId: string | Types.ObjectId, @Req() request: Request) {
     const user = request.user as User;
     let id = (userId === CURRENT_USER ? user._id : userId) as Types.ObjectId;
@@ -74,6 +79,7 @@ export class UserController {
   }
 
   @Get('user')
+  @ApiOkResponse({type: [UserDto]})
   getAllUsersProfiles(@Query('type') userType: string) {
     return this.userService.getAllUsers(userType);
   }
