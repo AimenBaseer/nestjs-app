@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
-import { ROLES_KEY } from 'src/decorators/roles.decorator';
-import { Role } from 'src/user/user.model';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import { Role } from '../user/user.model';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
@@ -25,6 +25,6 @@ export class AuthorizationGuard implements CanActivate {
       return true;
     }
     const { user } = context.switchToHttp().getRequest();
-    return allowedRoles.includes(user.type);
+    return allowedRoles.includes(user?.type || user?._doc?.type);
   }
 }
