@@ -6,6 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  NotFoundException,
   Param,
   Post,
   Query,
@@ -21,9 +22,14 @@ import { AuthService } from '../auth/auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { UserDto, LoginDto } from '../dtos/user.dto';
 import { Types } from 'mongoose';
-import { Roles } from 'src/decorators/roles.decorator';
+import { Roles } from '../decorators/roles.decorator';
 
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller()
 export class UserController {
@@ -47,9 +53,9 @@ export class UserController {
 
   @Roles(Role.advisor)
   @Post('user/:id/:status_id?')
-  @ApiCreatedResponse({type: UserDto})
+  @ApiCreatedResponse({ type: UserDto })
   async createOrUpdateUser(
-    @Param('id') userId: string,
+    @Param('id') userId: string | Types.ObjectId,
     @Param('status_id') statusId: string,
     @Body() user: UserDto,
   ) {
@@ -63,7 +69,11 @@ export class UserController {
     if (statusId) {
       updateObject = { status_id: statusId };
     }
-    const result = await this.userService.updateUser(userId, updateObject);
+
+    const result = await this.userService.updateUser(
+      userId as Types.ObjectId,
+      updateObject,
+    );
     if (!result) {
       throw new HttpException('Error Updating User', HttpStatus.NOT_FOUND);
     }
@@ -71,15 +81,21 @@ export class UserController {
   }
 
   @Get('user/:id')
-  @ApiOkResponse({type: UserDto})
-  getProfile(@Param('id') userId: string | Types.ObjectId, @Req() request: Request) {
+  @ApiOkResponse({ type: UserDto })
+  async getProfile(
+    @Param('id') userId: string | Types.ObjectId,
+    @Req() request: Request,
+  ) {
     const user = request.user as User;
     let id = (userId === CURRENT_USER ? user._id : userId) as Types.ObjectId;
-    return this.userService.findById(id);
+    const result = await this.userService.findById(id);
+    if (!result) {
+      throw new NotFoundException();
+    }
   }
 
   @Get('user')
-  @ApiOkResponse({type: [UserDto]})
+  @ApiOkResponse({type: [UserDto] })
   getAllUsersProfiles(@Query('type') userType: string) {
     return this.userService.getAllUsers(userType);
   }

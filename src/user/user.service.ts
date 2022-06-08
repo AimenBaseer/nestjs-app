@@ -1,9 +1,6 @@
 import * as bcrypt from 'bcrypt';
 
-import {
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
@@ -13,9 +10,7 @@ import { UserDto } from '../dtos/user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectModel('User') private readonly userModel: Model<User>,
-  ) {}
+  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
   createUser = async (user: UserDto) => {
     const saltOrRounds = 10;
@@ -27,7 +22,8 @@ export class UserService {
     return this.userModel.create(user);
   };
 
-  getUserByEmail = async (email: string) => this.userModel.findOne({ email }).lean();
+  getUserByEmail = async (email: string) =>
+    this.userModel.findOne({ email }).lean();
 
   getAllUsers = (userType) => {
     const query = userType ? { type: userType } : {};
@@ -38,10 +34,10 @@ export class UserService {
 
   findById = (id: Types.ObjectId) => this.userModel.findById(id);
 
-  updateUser = (id: string, user: User) =>
-    this.userModel.findOneAndUpdate({ id }, user, {
+  updateUser = (id: Types.ObjectId, user: User) =>
+    this.userModel.findByIdAndUpdate(id, user, {
       new: true,
       runValidators: true,
     });
-
-}
+  
+  }
