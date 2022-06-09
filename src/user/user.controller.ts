@@ -92,6 +92,7 @@ export class UserController {
     if (!result) {
       throw new NotFoundException();
     }
+    return result;
   }
 
   @Get('user')
