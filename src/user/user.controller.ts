@@ -16,7 +16,6 @@ import {
 import { Role, User } from './user.model';
 import { UserService } from './user.service';
 import { CURRENT_USER } from '../constants';
-import { Request } from 'express';
 import { Public } from '../decorators/public.decorator';
 import { AuthService } from '../auth/auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
@@ -30,6 +29,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import { LoginUser } from '../decorators/login-user.decorator';
 @ApiBearerAuth()
 @Controller()
 export class UserController {
@@ -42,9 +42,9 @@ export class UserController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
   @Post('login')
-  login(@Req() req: Request) {
-    Logger.log('req.user', req.user);
-    return this.authService.login(req.user);
+  login(@LoginUser() user: User) {
+    Logger.debug('req.user', user);
+    return this.authService.login(user);
   }
 
   /**
@@ -84,10 +84,9 @@ export class UserController {
   @ApiOkResponse({ type: UserDto })
   async getProfile(
     @Param('id') userId: string | Types.ObjectId,
-    @Req() request: Request,
+    @LoginUser('_id') _id: string,
   ) {
-    const user = request.user as User;
-    let id = (userId === CURRENT_USER ? user._id : userId) as Types.ObjectId;
+    let id = (userId === CURRENT_USER ? _id : userId) as Types.ObjectId;
     const result = await this.userService.findById(id);
     if (!result) {
       throw new NotFoundException();
@@ -96,7 +95,7 @@ export class UserController {
   }
 
   @Get('user')
-  @ApiOkResponse({type: [UserDto] })
+  @ApiOkResponse({ type: [UserDto] })
   getAllUsersProfiles(@Query('type') userType: string) {
     return this.userService.getAllUsers(userType);
   }
